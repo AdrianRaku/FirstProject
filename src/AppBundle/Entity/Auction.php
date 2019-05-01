@@ -2,7 +2,7 @@
 
 namespace AppBundle\Entity;
 
-use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -84,7 +84,17 @@ class Auction
      */
     private $status;
 
+    /**
+     * @var Offer[]
+     *
+     * @ORM\OneToMany(targetEntity="Offer", mappedBy="auction")
+     */
+    private $offers;
 
+    public function __construct()
+    {
+        $this->offers = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -268,5 +278,24 @@ class Auction
         return $this;
     }
 
+    /**
+     * @return Offer[]|ArrayCollection
+     */
+    public function getOffers()
+    {
+        return $this->offers;
+    }
 
+
+    /**
+     * @param Offer $offer
+     *
+     * @return $this
+     */
+    public function addOffer(Offer $offer)
+    {
+        $this->offers[] = $offer;
+
+        return $this;
+    }
 }

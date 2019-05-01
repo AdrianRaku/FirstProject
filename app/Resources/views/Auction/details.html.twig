@@ -14,13 +14,15 @@
         </ul>
     </div>
     <a class="btn btn-secondary float-left" href="{{ url('auction_index') }}"> Return</a>
+    <a class="btn btn-info float-left" href="{{ url('auction_edit',{'id':auction.id}) }}">Edit</a>
+
     {{ form_start(deleteForm, {"attr":{"class":"float-left"}}) }}
-        {{ form_widget(deleteForm.submit) }}
+    {{ form_widget(deleteForm.submit, {"attr":{"class":"btn-danger"}}) }}
         {{ form_rest(deleteForm) }}
     {{ form_end(deleteForm) }}
 
     {{ form_start(finishForm, {"attr":{"class":"float-left"}}) }}
-        {{ form_widget(finishForm.submit) }}
+    {{ form_widget(finishForm.submit,{"attr":{"class":"btn-warning"}}) }}
         {{ form_rest(finishForm) }}
     {{ form_end(finishForm) }}
 
