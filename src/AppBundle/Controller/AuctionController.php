@@ -4,12 +4,14 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Auction;
 use AppBundle\Form\AuctionType;
+use AppBundle\Form\BidType;
+use DateTime;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AuctionController extends Controller
@@ -23,7 +25,8 @@ class AuctionController extends Controller
     public function indexAction()
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $auctions = $entityManager->getRepository(Auction::class)->findAll();
+        $auctions = $entityManager->getRepository(Auction::class)->findBy(["status" => Auction::STATUS_ACTIVE]);
+
         return $this->render("Auction/index.html.twig", ["auctions" => $auctions]);
     }
 
@@ -37,22 +40,41 @@ class AuctionController extends Controller
      */
     public function detailsAction(Auction $auction)
     {
-        $deleteForm= $this->createFormBuilder()
-            ->setAction($this->generateUrl("auction_delete",["id"=> $auction->getId()]))
+        if ($auction->getStatus() === Auction::STATUS_FINISHED) {
+            return $this->render("Auction/finished.html.twig", ["auction" => $auction]);
+        }
+
+        $deleteForm = $this->createFormBuilder()
+            ->setAction($this->generateUrl("auction_delete", ["id" => $auction->getId()]))
             ->setMethod(Request::METHOD_DELETE)
-            ->add("submit", SubmitType::class,["label"=>"Delete"])
+            ->add("submit", SubmitType::class, ["label" => "Delete"])
             ->getForm();
 
-        $finishForm= $this->createFormBuilder()
-            ->setAction($this->generateUrl("auction_finish",["id"=> $auction->getId()]))
-            ->add("submit", SubmitType::class,["label"=>"Finish"])
+        $finishForm = $this->createFormBuilder()
+            ->setAction($this->generateUrl("auction_finish", ["id" => $auction->getId()]))
+            ->add("submit", SubmitType::class, ["label" => "Finish"])
             ->getForm();
+        $buyForm = $this->createFormBuilder()
+            ->setAction($this->generateUrl("offer_buy", ["id" => $auction->getId()]))
+            ->add("submit", SubmitType::class, ["label" => "Buy now"])
+            ->getForm();
+
+        $bidForm = $this->createForm(
+            BidType::class,
+            null,
+            ["action" => $this->generateUrl("offer_bid", ["id" => $auction->getId()])
+            ]
+        );
 
         return $this->render(
             "Auction/details.html.twig",
             ["auction" => $auction,
                 "deleteForm" => $deleteForm->createView(),
-                "finishForm"=>$finishForm->createView()]);
+                "finishForm" => $finishForm->createView(),
+                "buyForm" => $buyForm->createView(),
+                "bidForm" => $bidForm->createView()
+            ]
+        );
     }
 
 
@@ -61,7 +83,7 @@ class AuctionController extends Controller
      *
      * @param Request $request
      * @return RedirectResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function addAction(Request $request)
     {
@@ -70,7 +92,7 @@ class AuctionController extends Controller
         $form = $this->createForm(AuctionType::class, $auction);
 
 
-        if($request->isMethod("post")){
+        if ($request->isMethod("post")) {
             $form->handleRequest($request);
 
             $auction
@@ -80,10 +102,10 @@ class AuctionController extends Controller
             $entityManager->persist(($auction));
             $entityManager->flush();
 
-            return $this->redirectToRoute("auction_details",["id"=> $auction->getId()]);
+            return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
         }
 
-        return $this->render("Auction/add.html.twig",["form"=>$form->createView()]);
+        return $this->render("Auction/add.html.twig", ["form" => $form->createView()]);
     }
 
     /**
@@ -92,23 +114,23 @@ class AuctionController extends Controller
      * @param Request $request
      * @param Auction $auction
      * @return RedirectResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function editAction(Request $request, Auction $auction)
     {
         $form = $this->createForm(AuctionType::class, $auction);
 
-        if($request->isMethod("post")){
+        if ($request->isMethod("post")) {
             $form->handleRequest($request);
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($auction);
             $entityManager->flush();
 
-            return $this->redirectToRoute("auction_details",["id"=> $auction->getId()]);
+            return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
         }
 
-        return $this->render("Auction/edit.html.twig",["form"=> $form->createView()]);
+        return $this->render("Auction/edit.html.twig", ["form" => $form->createView()]);
     }
 
     /**
@@ -134,18 +156,18 @@ class AuctionController extends Controller
      *
      * @return RedirectResponse
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function finishAction(Auction $auction)
     {
         $auction
-            ->setExpireAt(new \DateTime())
+            ->setExpireAt(new DateTime())
             ->setStatus(Auction::STATUS_FINISHED);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($auction);
         $entityManager->flush();
 
-        return $this->redirectToRoute("auction_details",["id" =>$auction->getId()]);
+        return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
     }
 }

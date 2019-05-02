@@ -18,14 +18,35 @@
 
     {{ form_start(deleteForm, {"attr":{"class":"float-left"}}) }}
     {{ form_widget(deleteForm.submit, {"attr":{"class":"btn-danger"}}) }}
-        {{ form_rest(deleteForm) }}
+    {{ form_rest(deleteForm) }}
     {{ form_end(deleteForm) }}
 
     {{ form_start(finishForm, {"attr":{"class":"float-left"}}) }}
     {{ form_widget(finishForm.submit,{"attr":{"class":"btn-warning"}}) }}
-        {{ form_rest(finishForm) }}
+    {{ form_rest(finishForm) }}
     {{ form_end(finishForm) }}
 
+    {{ form_start(buyForm, {"attr":{"class":"float-left"}}) }}
+    {{ form_widget(buyForm.submit,{"attr":{"class":"btn-success"}}) }}
+    {{ form_rest(buyForm) }}
+    {{ form_end(buyForm) }}
+
+
     <div class="clearfix"></div>
+
+    {{ form_start(bidForm,{ "attr":{"class":"mt-3"}}) }}
+    {{ form_widget(bidForm.price,{"attr":{"class":"col-md-2"}} ) }}
+    {{ form_widget(bidForm.submit,{"attr":{"class":"btn-success col-md-1"}}) }}
+    {{ form_end(bidForm) }}
+
+    <div class="card m-5">
+        <h5 class="card-header">Offers</h5>
+        <ul class="list-group">
+            {% for offer in auction.offers|reverse %}
+                <li class="list-group-item">Bid: {{ offer.price }}$, created
+                    at: {{ offer.createdAt| date("Y-m-d H:i:s") }}  </li>
+            {% endfor %}
+        </ul>
+    </div>
 
 {% endblock %}
