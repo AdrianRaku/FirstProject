@@ -95,14 +95,20 @@ class AuctionController extends Controller
         if ($request->isMethod("post")) {
             $form->handleRequest($request);
 
-            $auction
-                ->setStatus(Auction::STATUS_ACTIVE);
+            if ($form->isValid()) {
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist(($auction));
-            $entityManager->flush();
+                $auction
+                    ->setStatus(Auction::STATUS_ACTIVE);
 
-            return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist(($auction));
+                $entityManager->flush();
+
+                $this->addFlash("success", "Success! Added auction : {$auction->getTitle()}.");
+
+                return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
+            }
+            $this->addFlash("error", "Error! Not added auction : {$auction->getTitle()}.");
         }
 
         return $this->render("Auction/add.html.twig", ["form" => $form->createView()]);
@@ -127,6 +133,8 @@ class AuctionController extends Controller
             $entityManager->persist($auction);
             $entityManager->flush();
 
+            $this->addFlash("success", "Success! Edited auction : {$auction->getTitle()}.");
+
             return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
         }
 
@@ -145,6 +153,8 @@ class AuctionController extends Controller
         $entityMenager = $this->getDoctrine()->getManager();
         $entityMenager->remove($auction);
         $entityMenager->flush();
+
+        $this->addFlash("success", "Success! Deleted auction : {$auction->getTitle()}.");
 
         return $this->redirectToRoute("auction_index");
     }
@@ -167,6 +177,8 @@ class AuctionController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($auction);
         $entityManager->flush();
+
+        $this->addFlash("success", "Finished auction : {$auction->getTitle()}.");
 
         return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
     }

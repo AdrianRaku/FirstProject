@@ -5,6 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Auction
@@ -31,6 +32,7 @@ class Auction
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     * @Assert|NotBlank()
      */
     private $title;
 

@@ -8,6 +8,8 @@ use AppBundle\Entity\Auction;
 use AppBundle\Entity\Offer;
 use AppBundle\Form\BidType;
 use DateTime;
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,8 +22,8 @@ class OfferController extends Controller
      *
      * @param Auction $auction
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function buyAction(Auction $auction)
     {
@@ -39,6 +41,8 @@ class OfferController extends Controller
         $entityManager->persist($auction);
         $entityManager->flush();
 
+        $this->addFlash("success", "Congratulations! You bought {$auction->getTitle()} for {$auction->getPrice()} ");
+
         return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
 
     }
@@ -48,7 +52,7 @@ class OfferController extends Controller
      *
      * @param Request $request
      * @param Auction $auction
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function bidAction(Request $request, Auction $auction)
     {
@@ -64,6 +68,8 @@ class OfferController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($offer);
         $entityManager->flush();
+
+        $this->addFlash("success", "Success! Added bid {$offer->getPrice()} to auction : {$auction->getTitle()}.");
 
         return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
     }
