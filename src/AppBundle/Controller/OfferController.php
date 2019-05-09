@@ -60,16 +60,37 @@ class OfferController extends Controller
         $bidForm = $this->createForm(BidType::class, $offer);
 
         $bidForm->handleRequest($request);
+        if ($bidForm->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $lastOffer = $entityManager
+                ->getRepository(Offer::class)
+                ->findOneBy(["auction" => $auction], ["price" => "DESC"]);
 
-        $offer
-            ->setType(Offer::TYPE_BID)
-            ->setAuction($auction);
+            if (isset($lastOffer)) {
+                if ($offer->getPrice() <= $lastOffer->getPrice()) {
+                    $this->addFlash("danger", "Your bid have to be greater than {$lastOffer->getPrice()}");
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($offer);
-        $entityManager->flush();
+                    return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
+                }
+            } else {
+                if ($offer->getPrice() < $auction->getStartingPrice()) {
+                    $this->addFlash("danger", "Your bid can't be smaller than starting price.");
 
-        $this->addFlash("success", "Success! Added bid {$offer->getPrice()} to auction : {$auction->getTitle()}.");
+                    return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
+                }
+            }
+
+            $offer
+                ->setType(Offer::TYPE_BID)
+                ->setAuction($auction);
+
+            $entityManager->persist($offer);
+            $entityManager->flush();
+
+            $this->addFlash("success", "Success! Added bid {$offer->getPrice()} to auction : {$auction->getTitle()}.");
+        } else {
+            $this->addFlash("danger", "The failed adding bid");
+        }
 
         return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
     }

@@ -1,5 +1,9 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    {{ form(form, {"attr":{"novalidate":"nowalidate"}}) }}
+    <div class="row">
+        <div class="offset-md-3 col-6">
+            {{ form(form, {"attr":{"novalidate":"novalidate"}}) }}
+        </div>
+    </div>
 {% endblock %}

@@ -9,6 +9,7 @@ use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -95,6 +96,10 @@ class AuctionController extends Controller
         if ($request->isMethod("post")) {
             $form->handleRequest($request);
 
+            if ($auction->getStartingPrice() >= $auction->getPrice()) {
+                $form->get("startingPrice")->addError(new FormError("Starting price can't be greater than buy now price"));
+            }
+
             if ($form->isValid()) {
 
                 $auction
@@ -108,7 +113,7 @@ class AuctionController extends Controller
 
                 return $this->redirectToRoute("auction_details", ["id" => $auction->getId()]);
             }
-            $this->addFlash("error", "Error! Not added auction : {$auction->getTitle()}.");
+            $this->addFlash("danger", "Error! Not added auction.");
         }
 
         return $this->render("Auction/add.html.twig", ["form" => $form->createView()]);

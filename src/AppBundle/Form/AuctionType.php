@@ -14,21 +14,23 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AuctionType  extends AbstractType
+class AuctionType extends AbstractType
 {
-public function buildForm(FormBuilderInterface $builder, array $options)
-{
-    $builder
-        ->add("title",TextType::class,['label'=>"Title"])
-        ->add("description", TextareaType::class,['label'=> 'Description'])
-        ->add("price", NumberType::class,['label'=> 'Price'])
-        ->add("startingPrice",NumberType::class,['label'=>'Starting price'])
-        ->add("expireAt",DateTimeType::class,['label'=>'Expires at'])
-        ->add("submit",SubmitType::class,['label'=> 'save']);
-}
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add("title", TextType::class, ['label' => "Title"])
+            ->add("description", TextareaType::class, ['label' => 'Description'])
+            ->add("price", NumberType::class, ['label' => 'Price'])
+            ->add("startingPrice", NumberType::class, ['label' => 'Starting price'])
+            ->add("expireAt",
+                DateTimeType::class,
+                ['label' => 'Expires at', 'data' => new \DateTime("+1 day +15 minutes")])
+            ->add("submit", SubmitType::class, ['label' => 'save']);
+    }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(["data_class"=> Auction::class]);
-}
+        $resolver->setDefaults(["data_class" => Auction::class]);
+    }
 }
