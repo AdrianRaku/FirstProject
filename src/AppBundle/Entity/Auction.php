@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -88,7 +89,7 @@ class Auction
     private $startingPrice;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Gedmo\Timestampable(on="create")
@@ -96,7 +97,7 @@ class Auction
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_at",type="datetime")
      * @Gedmo\Timestampable(on="update")
@@ -104,7 +105,7 @@ class Auction
     private $updatedAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="expire_at",type="datetime")
      * @Assert\NotBlank(
@@ -129,7 +130,13 @@ class Auction
      *
      * @ORM\OneToMany(targetEntity="Offer", mappedBy="auction")
      */
+
     private $offers;
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity ="User", inversedBy="auctions")
+     */
+    private $owner;
 
     public function __construct()
     {
@@ -240,7 +247,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedAt()
     {
@@ -248,7 +255,7 @@ class Auction
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      *
      * @return $this
      */
@@ -259,7 +266,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getUpdatedAt()
     {
@@ -267,7 +274,7 @@ class Auction
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      *
      * @return $this
      */
@@ -279,7 +286,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getExpireAt()
     {
@@ -287,7 +294,7 @@ class Auction
     }
 
     /**
-     * @param \DateTime $expireAt
+     * @param DateTime $expireAt
      *
      * @return $this
      */
@@ -326,7 +333,6 @@ class Auction
         return $this->offers;
     }
 
-
     /**
      * @param Offer $offer
      *
@@ -338,4 +344,25 @@ class Auction
 
         return $this;
     }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param $owner
+     * @return $this
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+
 }

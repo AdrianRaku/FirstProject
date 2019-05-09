@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -48,7 +49,7 @@ class Offer
     private $type;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      *
@@ -57,7 +58,7 @@ class Offer
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      *
@@ -72,6 +73,13 @@ class Offer
      * @ORM\JoinColumn(name="auction_id", referencedColumnName="id")
      */
     private $auction;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="offers")
+     */
+    private $owner;
 
     /**
      * Get id
@@ -134,7 +142,7 @@ class Offer
     /**
      * Set createdAt
      *
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      *
      * @return Offer
      */
@@ -148,7 +156,7 @@ class Offer
     /**
      * Get createdAt
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedAt()
     {
@@ -158,7 +166,7 @@ class Offer
     /**
      * Set updatedAt
      *
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      *
      * @return Offer
      */
@@ -172,7 +180,7 @@ class Offer
     /**
      * Get updatedAt
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getUpdatedAt()
     {
@@ -194,6 +202,25 @@ class Offer
     public function setAuction(Auction $auction)
     {
         $this->auction = $auction;
+
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param $owner
+     * @return $this
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
 
         return $this;
     }
