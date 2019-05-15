@@ -2,9 +2,11 @@
 
 namespace AppBundle\Entity;
 
-use Doctrine\DBAL\Types\DateTimeType;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Auction
@@ -31,6 +33,15 @@ class Auction
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     * @Assert\NotBlank(
+     *     message="Title should not be blank."
+     * )
+     * @Assert\Length(
+     *     min=3,
+     *     max=100,
+     *     minMessage="Title should be longer than 3 chars.",
+     *     maxMessage="Title should not be longer than 100 chars"
+     * )
      */
     private $title;
 
@@ -38,6 +49,15 @@ class Auction
      * @var string
      *
      * @ORM\Column(name="description", type="text")
+     * @Assert\NotBlank(
+     *     message="Describe should not be blank."
+     * )
+     * @Assert\Length(
+     *     min=3,
+     *     max=255,
+     *     minMessage="Describe should be longer than 3 chars.",
+     *     maxMessage="Describe should not be longer than 255 chars"
+     * )
      */
     private $description;
 
@@ -45,17 +65,31 @@ class Auction
      * @var float
      *
      * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
+     * @Assert\NotBlank(
+     *     message="Price should not be blank,"
+     * )
+     * @Assert\GreaterThan(
+     *     message="Price should be greater than 0.",
+     *     value="0"
+     * )
      */
     private $price;
 
     /** @var  float
      *
      * @ORM\Column(name="starting_price", type="decimal", precision=10, scale=2)
+     * * @Assert\NotBlank(
+     *     message="Starting price should not be blank,"
+     * )
+     * @Assert\GreaterThan(
+     *     message="Price should be greater than 0.",
+     *     value="0"
+     * )
      */
     private $startingPrice;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Gedmo\Timestampable(on="create")
@@ -63,7 +97,7 @@ class Auction
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_at",type="datetime")
      * @Gedmo\Timestampable(on="update")
@@ -71,9 +105,16 @@ class Auction
     private $updatedAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="expire_at",type="datetime")
+     * @Assert\NotBlank(
+     *     message="You should give date."
+     * )
+     * @Assert\GreaterThan(
+     *  value="+1 days",
+     *  message="Auction cannot finish before 24h."
+     * )
      */
     private $expireAt;
 
@@ -84,7 +125,23 @@ class Auction
      */
     private $status;
 
+    /**
+     * @var Offer[]
+     *
+     * @ORM\OneToMany(targetEntity="Offer", mappedBy="auction")
+     */
 
+    private $offers;
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity ="User", inversedBy="auctions")
+     */
+    private $owner;
+
+    public function __construct()
+    {
+        $this->offers = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -190,7 +247,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedAt()
     {
@@ -198,7 +255,7 @@ class Auction
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      *
      * @return $this
      */
@@ -209,7 +266,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getUpdatedAt()
     {
@@ -217,9 +274,9 @@ class Auction
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      *
-     *  @return $this
+     * @return $this
      */
     public function setUpdatedAt($updatedAt)
     {
@@ -229,7 +286,7 @@ class Auction
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getExpireAt()
     {
@@ -237,9 +294,9 @@ class Auction
     }
 
     /**
-     * @param \DateTime $expireAt
+     * @param DateTime $expireAt
      *
-     *  @return $this
+     * @return $this
      */
     public function setExpireAt($expireAt)
     {
@@ -264,6 +321,45 @@ class Auction
     public function setStatus($status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Offer[]|ArrayCollection
+     */
+    public function getOffers()
+    {
+        return $this->offers;
+    }
+
+    /**
+     * @param Offer $offer
+     *
+     * @return $this
+     */
+    public function addOffer(Offer $offer)
+    {
+        $this->offers[] = $offer;
+
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param $owner
+     * @return $this
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
 
         return $this;
     }
